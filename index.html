@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПДД — 400 билетов с картинками</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #eef2f7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 920px;
+            width: 100%;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0, 20, 40, 0.2);
+            padding: 25px 25px 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0b2b44;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #e3ecf5;
+            border-radius: 40px;
+            padding: 10px 20px;
+            margin-bottom: 16px;
+        }
+
+        .level-header .level-info {
+            font-weight: 700;
+            font-size: 18px;
+            color: #1f4d6e;
+        }
+        .level-header .progress-info {
+            font-size: 15px;
+            color: #2c5779;
+            background: white;
+            padding: 4px 16px;
+            border-radius: 30px;
+            border: 1px solid #bacddb;
+        }
+
+        .level-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .level-btn {
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 2px solid #b8c9dd;
+            background: white;
+            font-weight: 600;
+            font-size: 14px;
+            color: #1e3a5f;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .level-btn:hover {
+            background: #e3ecf7;
+            border-color: #6f8db0;
+        }
+        .level-btn.active {
+            background: #1f4d6e;
+            border-color: #1f4d6e;
+            color: white;
+        }
+        .level-btn.completed {
+            background: #1e9b5e;
+            border-color: #0f7a47;
+            color: white;
+        }
+        .level-btn.partial {
+            background: #FF9800;
+            border-color: #e68900;
+            color: white;
+        }
+
+        .ticket-strip {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            background: #f8fafd;
+            padding: 12px 10px;
+            border-radius: 50px;
+            margin-bottom: 18px;
+            border: 1px solid #dce4ec;
+        }
+
+        .ticket-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid #b8c9dd;
+            background: white;
+            font-weight: 700;
+            font-size: 14px;
+            color: #1e3a5f;
+            cursor: pointer;
+            transition: 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ticket-btn:hover:not(.disabled-ticket) {
+            background: #e3ecf7;
+            border-color: #6f8db0;
+            transform: scale(1.05);
+        }
+        .ticket-btn.correct {
+            background: #1e9b5e;
+            border-color: #0f7a47;
+            color: white;
+        }
+        .ticket-btn.wrong {
+            background: #d44c4c;
+            border-color: #a83232;
+            color: white;
+        }
+        .ticket-btn.current {
+            border: 3px solid #0b2b44;
+            box-shadow: 0 0 0 3px rgba(11, 43, 68, 0.15);
+            transform: scale(1.05);
+        }
+        .ticket-btn.disabled-ticket {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .image-block {
+            background: #f2f6fc;
+            border-radius: 28px;
+            padding: 10px;
+            margin-bottom: 16px;
+            text-align: center;
+            border: 1px solid #dde5ef;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .image-block svg {
+            max-width: 100%;
+            max-height: 220px;
+            height: auto;
+            width: auto;
+            border-radius: 12px;
+            background: white;
+            display: block;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .question-block {
+            background: #eef5fc;
+            border-radius: 30px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            border-left: 6px solid #1f6390;
+        }
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0a2942;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .option-item {
+            background: #f9fcff;
+            border: 2px solid #d3dfeb;
+            border-radius: 60px;
+            padding: 14px 20px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #1b3f5e;
+            cursor: pointer;
+            transition: 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .option-item:hover:not(.disabled-option) {
+            background: #e5eff9;
+            border-color: #8baac9;
+            transform: scale(1.01);
+        }
+        .option-item.selected-correct {
+            background: #b7e6cf;
+            border-color: #1e9b5e;
+            color: #0b4128;
+        }
+        .option-item.selected-wrong {
+            background: #f8d0d0;
+            border-color: #d44c4c;
+            color: #6f2626;
+        }
+        .option-item.disabled-option {
+            cursor: default;
+            opacity: 0.8;
+        }
+        .option-prefix {
+            font-weight: 700;
+            color: #4f7b9e;
+            min-width: 26px;
+        }
+
+        .status-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #e3ecf5;
+            border-radius: 40px;
+            padding: 10px 20px;
+        }
+        .info-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f4d6e;
+        }
+        .info-badge span {
+            background: white;
+            padding: 4px 14px;
+            border-radius: 30px;
+            border: 1px solid #bacddb;
+        }
+        .reset-btn {
+            background: #1f4d6e;
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .reset-btn:hover {
+            background: #143a54;
+            transform: scale(1.02);
+        }
+        .footer-note {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #5a7897;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 14px 10px;
+            }
+            .question-text {
+                font-size: 17px;
+            }
+            .option-item {
+                font-size: 16px;
+                padding: 12px 16px;
+            }
+            .ticket-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 13px;
+            }
+            .level-btn {
+                font-size: 12px;
+                padding: 4px 10px;
+            }
+            .image-block svg {
+                max-height: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <h1>🚦 ПДД — 400 билетов</h1>
+
+    <div class="level-header">
+        <div class="level-info" id="levelInfo">Уровень 1 / 20</div>
+        <div class="progress-info" id="progressInfo">0 / 20</div>
+    </div>
+
+    <div class="level-nav" id="levelNav"></div>
+    <div class="ticket-strip" id="ticketStrip"></div>
+
+    <div class="image-block" id="imageBlock">
+        <div id="imageContainer"></div>
+    </div>
+
+    <div class="question-block">
+        <div class="question-text" id="questionText">Загрузка...</div>
+    </div>
+    <div class="options-list" id="optionsContainer"></div>
+
+    <div class="status-area">
+        <div class="info-badge">
+            <span id="currentTicketDisplay">1</span> / 20
+            <span style="margin-left:6px;" id="resultIcon">⚪</span>
+        </div>
+        <button class="reset-btn" id="resetBtn">↺ Сбросить уровень</button>
+    </div>
+    <div class="footer-note">Автоматическое перелистывание после ответа</div>
+</div>
+
+<script>
+    (function() {
+        // ============================================================
+        // 20 УНИКАЛЬНЫХ SVG-КАРТИНОК ПО ТЕМАМ (ВСТРОЕНЫ В КОД)
+        // ============================================================
+        const themeSvgs = [
+            // Тема 0: Разворот
+            `<svg viewBox="0 0 420 200" xmlns="blob:https://gemini.google.com/8cd98de8-47cc-4367-9528-da452c2d34fe">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="20" y="75" width="380" height="50" fill="#555" rx="6"/>
+                <rect x="20" y="95" width="380" height="4" fill="#fff" opacity="0.6"/>
+                <circle cx="210" cy="100" r="38" fill="none" stroke="#2196F3" stroke-width="5"/>
+                <polygon points="210,65 230,100 190,100" fill="#2196F3"/>
+                <circle cx="95" cy="100" r="26" fill="#f44336" opacity="0.85"/>
+                <circle cx="325" cy="100" r="26" fill="#4CAF50" opacity="0.85"/>
+                <text x="95" y="108" font-size="16" fill="white" text-anchor="middle" font-weight="bold">A</text>
+                <text x="325" y="108" font-size="16" fill="white" text-anchor="middle" font-weight="bold">B</text>
+                <text x="210" y="175" font-size="15" fill="#333" text-anchor="middle">Разворот запрещён (знак 3.19)</text>
+            </svg>`,
+            // Тема 1: Движение запрещено
+            `<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="130" cy="130" r="115" fill="white" stroke="#f44336" stroke-width="10"/>
+                <circle cx="130" cy="130" r="100" fill="white"/>
+                <rect x="30" y="120" width="200" height="20" fill="#f44336" rx="4"/>
+                <text x="130" y="70" font-size="18" fill="#333" text-anchor="middle">Движение</text>
+                <text x="130" y="95" font-size="18" fill="#333" text-anchor="middle">запрещено</text>
+                <text x="130" y="230" font-size="14" fill="#666" text-anchor="middle">Знак 3.2</text>
+            </svg>`,
+            // Тема 2: Пешеходный переход
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="20" y="85" width="380" height="40" fill="#555" rx="6"/>
+                <rect x="20" y="105" width="380" height="4" fill="#fff" opacity="0.5"/>
+                <rect x="140" y="125" width="140" height="45" fill="#aaa" rx="3"/>
+                <polygon points="190,70 230,70 210,50" fill="#4CAF50"/>
+                <polygon points="190,140 230,140 210,160" fill="#4CAF50"/>
+                <circle cx="110" cy="105" r="16" fill="#2196F3"/>
+                <circle cx="310" cy="105" r="16" fill="#f44336"/>
+                <text x="110" y="110" font-size="14" fill="white" text-anchor="middle">A</text>
+                <text x="310" y="110" font-size="14" fill="white" text-anchor="middle">B</text>
+                <text x="210" y="185" font-size="14" fill="#333" text-anchor="middle">Уступить пешеходам при повороте</text>
+            </svg>`,
+            // Тема 3: Задний ход запрещён
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="20" y="75" width="380" height="50" fill="#555" rx="6"/>
+                <rect x="20" y="125" width="380" height="3" fill="#fff" opacity="0.3"/>
+                <text x="210" y="45" font-size="20" fill="#f44336" text-anchor="middle" font-weight="bold">ЗАПРЕЩЕНО</text>
+                <polygon points="160,95 180,95 170,70" fill="#f44336"/>
+                <polygon points="260,95 240,95 250,70" fill="#f44336"/>
+                <text x="210" y="170" font-size="15" fill="#333" text-anchor="middle">Движение задним ходом на магистрали запрещено</text>
+            </svg>`,
+            // Тема 4: Светофор зелёный мигающий
+            `<svg viewBox="0 0 160 360" xmlns="http://www.w3.org/2000/svg">
+                <rect x="25" y="15" width="110" height="330" rx="50" fill="#333"/>
+                <circle cx="80" cy="65" r="32" fill="#555"/>
+                <circle cx="80" cy="180" r="32" fill="#4CAF50"/>
+                <circle cx="80" cy="180" r="32" fill="#4CAF50" opacity="0.15"/>
+                <circle cx="80" cy="180" r="28" fill="none" stroke="#4CAF50" stroke-width="3"/>
+                <circle cx="80" cy="295" r="32" fill="#555"/>
+                <text x="80" y="187" font-size="14" fill="#4CAF50" text-anchor="middle" font-weight="bold">МИГАЕТ</text>
+                <text x="80" y="335" font-size="13" fill="#aaa" text-anchor="middle">Скоро жёлтый</text>
+            </svg>`,
+            // Тема 5: Маршрутный транспорт
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="35" y="50" width="120" height="55" fill="#f44336" rx="8"/>
+                <rect x="30" y="45" width="130" height="12" fill="#2196F3" rx="4"/>
+                <circle cx="60" cy="110" r="14" fill="#333"/>
+                <circle cx="130" cy="110" r="14" fill="#333"/>
+                <text x="95" y="88" font-size="18" fill="white" text-anchor="middle">A</text>
+                <rect x="245" y="50" width="120" height="55" fill="#4CAF50" rx="8"/>
+                <rect x="240" y="45" width="130" height="12" fill="#FF9800" rx="4"/>
+                <circle cx="270" cy="110" r="14" fill="#333"/>
+                <circle cx="340" cy="110" r="14" fill="#333"/>
+                <text x="305" y="88" font-size="18" fill="white" text-anchor="middle">T</text>
+                <text x="210" y="165" font-size="15" fill="#333" text-anchor="middle">Маршрутный транспорт: автобусы, троллейбусы</text>
+            </svg>`,
+            // Тема 6: Трамвай
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="20" y="80" width="380" height="45" fill="#555" rx="6"/>
+                <rect x="20" y="125" width="380" height="4" fill="#fff" opacity="0.4"/>
+                <rect x="100" y="45" width="200" height="40" fill="#FFC107" rx="6"/>
+                <rect x="115" y="48" width="45" height="34" fill="#2196F3" rx="3"/>
+                <rect x="240" y="48" width="45" height="34" fill="#2196F3" rx="3"/>
+                <circle cx="110" cy="100" r="16" fill="#f44336"/>
+                <circle cx="310" cy="100" r="16" fill="#4CAF50"/>
+                <text x="210" y="170" font-size="15" fill="#333" text-anchor="middle">Трамвай имеет преимущество</text>
+            </svg>`,
+            // Тема 7: Опасный груз
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <polygon points="210,20 280,95 280,180 140,180 140,95" fill="#FF9800" stroke="#f44336" stroke-width="5"/>
+                <rect x="155" y="125" width="110" height="45" fill="#f44336" rx="6"/>
+                <text x="210" y="153" font-size="20" fill="white" text-anchor="middle">ОПАСНО</text>
+                <text x="210" y="60" font-size="28" fill="#f44336" text-anchor="middle">⚠</text>
+                <text x="210" y="192" font-size="14" fill="#333" text-anchor="middle">Опасный груз — спец. перевозки</text>
+            </svg>`,
+            // Тема 8: Детское кресло
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="55" y="55" width="130" height="55" fill="#4CAF50" rx="8"/>
+                <circle cx="85" cy="82" r="16" fill="#fff"/>
+                <circle cx="155" cy="82" r="16" fill="#fff"/>
+                <text x="120" y="100" font-size="16" fill="white" text-anchor="middle">ДЕТСКОЕ</text>
+                <rect x="240" y="55" width="130" height="55" fill="#f44336" rx="8"/>
+                <text x="305" y="92" font-size="24" fill="white" text-anchor="middle">✕</text>
+                <text x="210" y="170" font-size="15" fill="#333" text-anchor="middle">Обязательно детское удерживающее устройство</text>
+            </svg>`,
+            // Тема 9: Знак пешеходный переход
+            `<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="130,20 240,210 20,210" fill="white" stroke="#f44336" stroke-width="8"/>
+                <circle cx="130" cy="145" r="22" fill="#333"/>
+                <rect x="113" y="167" width="34" height="38" fill="#333" rx="4"/>
+                <rect x="85" y="195" width="90" height="8" fill="#333" rx="2"/>
+                <text x="130" y="240" font-size="14" fill="#666" text-anchor="middle">Знак 1.22 Пешеходный переход</text>
+            </svg>`,
+            // Тема 10: Обгон запрещён
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="20" y="85" width="380" height="45" fill="#555" rx="6"/>
+                <rect x="20" y="130" width="380" height="3" fill="#fff" opacity="0.3"/>
+                <rect x="50" y="130" width="320" height="8" fill="#fff" opacity="0.3"/>
+                <circle cx="105" cy="107" r="18" fill="#2196F3"/>
+                <circle cx="290" cy="107" r="18" fill="#f44336"/>
+                <text x="105" y="113" font-size="14" fill="white" text-anchor="middle">A</text>
+                <text x="290" y="113" font-size="14" fill="white" text-anchor="middle">B</text>
+                <text x="210" y="175" font-size="15" fill="#f44336" text-anchor="middle">Обгон на перекрёстке запрещён</text>
+            </svg>`,
+            // Тема 11: Жёлтый светофор
+            `<svg viewBox="0 0 160 360" xmlns="http://www.w3.org/2000/svg">
+                <rect x="25" y="15" width="110" height="330" rx="50" fill="#333"/>
+                <circle cx="80" cy="65" r="32" fill="#555"/>
+                <circle cx="80" cy="180" r="32" fill="#FFC107"/>
+                <circle cx="80" cy="180" r="32" fill="#FFC107" opacity="0.15"/>
+                <circle cx="80" cy="295" r="32" fill="#555"/>
+                <text x="80" y="187" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">ЖЁЛТЫЙ</text>
+                <text x="80" y="335" font-size="13" fill="#aaa" text-anchor="middle">Предупреждение о смене сигнала</text>
+            </svg>`,
+            // Тема 12: Помеха справа
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="20" y="85" width="380" height="45" fill="#555" rx="6"/>
+                <rect x="20" y="130" width="380" height="3" fill="#fff" opacity="0.3"/>
+                <circle cx="135" cy="107" r="20" fill="#2196F3"/>
+                <circle cx="295" cy="107" r="20" fill="#f44336"/>
+                <text x="135" y="113" font-size="15" fill="white" text-anchor="middle">A</text>
+                <text x="295" y="113" font-size="15" fill="white" text-anchor="middle">B</text>
+                <text x="210" y="175" font-size="15" fill="#333" text-anchor="middle">Преимущество у водителя справа (A)</text>
+            </svg>`,
+            // Тема 13: Скорость 20
+            `<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="130" cy="130" r="115" fill="white" stroke="#f44336" stroke-width="8"/>
+                <text x="130" y="145" font-size="80" fill="#333" text-anchor="middle" font-weight="bold">20</text>
+                <text x="130" y="190" font-size="20" fill="#555" text-anchor="middle">км/ч</text>
+                <text x="130" y="235" font-size="14" fill="#888" text-anchor="middle">Жилая зона</text>
+            </svg>`,
+            // Тема 14: Отказ тормозов
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="50" y="55" width="320" height="22" fill="#f44336" rx="6"/>
+                <circle cx="90" cy="66" r="9" fill="white"/>
+                <circle cx="330" cy="66" r="9" fill="white"/>
+                <circle cx="210" cy="120" r="35" fill="#FFC107" opacity="0.25"/>
+                <text x="210" y="128" font-size="28" fill="#f44336" text-anchor="middle">⚠</text>
+                <text x="210" y="175" font-size="15" fill="#333" text-anchor="middle">Используйте двигатель и ручной тормоз</text>
+            </svg>`,
+            // Тема 15: Ближний свет
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="65" y="60" width="280" height="55" fill="#4CAF50" rx="8"/>
+                <circle cx="110" cy="87" r="18" fill="#FFC107"/>
+                <circle cx="110" cy="87" r="9" fill="white"/>
+                <text x="215" y="95" font-size="20" fill="white" text-anchor="middle">БЛИЖНИЙ СВЕТ</text>
+                <text x="210" y="170" font-size="15" fill="#333" text-anchor="middle">Обязательно всегда в движении</text>
+            </svg>`,
+            // Тема 16: Кирпич
+            `<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="130" cy="130" r="115" fill="#f44336" stroke="#f44336" stroke-width="5"/>
+                <rect x="50" y="70" width="160" height="105" fill="white" rx="6"/>
+                <rect x="62" y="82" width="136" height="80" fill="#f44336" rx="4"/>
+                <text x="130" y="142" font-size="55" fill="white" text-anchor="middle" font-weight="bold">!</text>
+                <text x="130" y="230" font-size="14" fill="#888" text-anchor="middle">Знак 3.1 «Въезд запрещён»</text>
+            </svg>`,
+            // Тема 17: Буксировка
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="35" y="75" width="90" height="45" fill="#2196F3" rx="6"/>
+                <rect x="300" y="75" width="90" height="45" fill="#4CAF50" rx="6"/>
+                <rect x="125" y="95" width="175" height="5" fill="#555"/>
+                <circle cx="60" cy="125" r="12" fill="#333"/>
+                <circle cx="100" cy="125" r="12" fill="#333"/>
+                <circle cx="330" cy="125" r="12" fill="#333"/>
+                <circle cx="370" cy="125" r="12" fill="#333"/>
+                <text x="210" y="175" font-size="15" fill="#f44336" text-anchor="middle">Буксировка с неисправными тормозами запрещена</text>
+            </svg>`,
+            // Тема 18: Водительское удостоверение
+            `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="420" height="200" fill="#e8f0fe" rx="12"/>
+                <rect x="100" y="30" width="220" height="130" fill="white" stroke="#2196F3" stroke-width="5" rx="10"/>
+                <rect x="125" y="55" width="170" height="12" fill="#2196F3" rx="3"/>
+                <rect x="125" y="75" width="130" height="8" fill="#ccc" rx="2"/>
+                <rect x="125" y="90" width="100" height="8" fill="#ccc" rx="2"/>
+                <rect x="125" y="105" width="150" height="8" fill="#ccc" rx="2"/>
+                <rect x="125" y="120" width="110" height="8" fill="#ccc" rx="2"/>
+                <text x="210" y="180" font-size="15" fill="#333" text-anchor="middle">Водительское удостоверение</text>
+            </svg>`,
+            // Тема 19: Зелёный светофор
+            `<svg viewBox="0 0 160 360" xmlns="http://www.w3.org/2000/svg">
+                <rect x="25" y="15" width="110" height="330" rx="50" fill="#333"/>
+                <circle cx="80" cy="65" r="32" fill="#555"/>
+                <circle cx="80" cy="180" r="32" fill="#4CAF50"/>
+                <circle cx="80" cy="180" r="32" fill="#4CAF50" opacity="0.15"/>
+                <circle cx="80" cy="295" r="32" fill="#555"/>
+                <text x="80" y="187" font-size="14" fill="white" text-anchor="middle" font-weight="bold">ЗЕЛЁНЫЙ</text>
+                <text x="80" y="335" font-size="13" fill="#aaa" text-anchor="middle">Движение разрешено</text>
+            </svg>`
+        ];
+
+        // ============================================================
+        // 20 ТЕМ С ВОПРОСАМИ (каждая тема привязана к своей картинке)
+        // ============================================================
+        const baseQuestions = [
+            { q: 'Можно ли выполнить разворот в этом месте?', opts: ['Да, разрешён', 'Нет, запрещён', 'Если нет встречных'], correct: 1, theme: 0 },
+            { q: 'Какой знак запрещает движение всех ТС?', opts: ['Въезд запрещён (кирпич)', 'Движение запрещено', 'Стоянка запрещена'], correct: 1, theme: 1 },
+            { q: 'Когда водитель обязан уступить пешеходам?', opts: ['При повороте на перекрёстке', 'При выезде с второстепенной', 'В обоих случаях'], correct: 2, theme: 2 },
+            { q: 'Разрешён ли задний ход на автомагистрали?', opts: ['Да, если нет машин', 'Запрещён', 'Только в крайнем правом ряду'], correct: 1, theme: 3 },
+            { q: 'Что означает мигающий зелёный сигнал?', opts: ['Скоро включится жёлтый', 'Разрешает движение', 'Запрещает движение'], correct: 0, theme: 4 },
+            { q: 'Какой транспорт относится к маршрутным?', opts: ['Автобусы и троллейбусы', 'Легковые такси', 'Все перечисленные'], correct: 0, theme: 5 },
+            { q: 'Должны ли водители уступать трамваю?', opts: ['Да, всегда', 'Только на перекрёстках', 'Нет, трамвай уступает'], correct: 0, theme: 6 },
+            { q: 'Что перевозится как опасный груз?', opts: ['Легковоспламеняющиеся вещества', 'Вредные для здоровья', 'Оба варианта'], correct: 2, theme: 7 },
+            { q: 'Можно ли возить детей без спец. кресла?', opts: ['Да, если старше 7 лет', 'Нет, нельзя', 'На заднем сиденье можно'], correct: 1, theme: 8 },
+            { q: 'Какой знак предупреждает о пешеходном переходе?', opts: ['Треугольник с пешеходом', 'Круг с пешеходом', 'Прямоугольник с зеброй'], correct: 0, theme: 9 },
+            { q: 'Разрешается ли обгон на перекрёстке?', opts: ['Разрешается', 'Запрещается', 'Если нет сплошной линии'], correct: 1, theme: 10 },
+            { q: 'Что означает жёлтый сигнал светофора?', opts: ['Запрещает движение', 'Предупреждает о смене сигнала', 'Разрешает движение'], correct: 1, theme: 11 },
+            { q: 'Кто имеет преимущество на нерегулируемом перекрёстке?', opts: ['Водитель справа', 'Водитель слева', 'Тот, кто едет прямо'], correct: 0, theme: 12 },
+            { q: 'Какая разрешённая скорость в жилой зоне?', opts: ['20 км/ч', '40 км/ч', '60 км/ч'], correct: 0, theme: 13 },
+            { q: 'Что делать при отказе тормозов?', opts: ['Использовать ручник', 'Снизить скорость двигателем', 'Оба способа'], correct: 2, theme: 14 },
+            { q: 'Обязательно ли включать ближний свет днём?', opts: ['Да, всегда', 'Только в тоннелях', 'Нет, не обязательно'], correct: 0, theme: 15 },
+            { q: 'Что означает знак «Кирпич»?', opts: ['Въезд запрещён', 'Движение прямо', 'Одностороннее движение'], correct: 0, theme: 16 },
+            { q: 'Можно ли буксировать авто с неисправными тормозами?', opts: ['Да, на жёсткой сцепке', 'Нет', 'С особой осторожностью'], correct: 1, theme: 17 },
+            { q: 'Какой документ должен быть у водителя?', opts: ['Водительское удостоверение', 'ПТС', 'Доверенность'], correct: 0, theme: 18 },
+            { q: 'Что означает зелёный сигнал светофора?', opts: ['Движение разрешено', 'Движение запрещено', 'Приготовиться к движению'], correct: 0, theme: 19 }
+        ];
+
+        // ============================================================
+        // ГЕНЕРАЦИЯ 20 УРОВНЕЙ × 20 ВОПРОСОВ = 400 БИЛЕТОВ
+        // ============================================================
+        function generateAllQuestions() {
+            const levels = [];
+            for (let lv = 0; lv < 20; lv++) {
+                const levelQuestions = [];
+                for (let i = 0; i < 20; i++) {
+                    const base = baseQuestions[i];
+                    const qText = `${base.q} (билет ${i+1}, ур.${lv+1})`;
+                    const opts = base.opts.slice();
+                    let correctIdx = base.correct;
+                    // Меняем порядок для разнообразия
+                    if ((lv + i) % 3 === 0 && i > 0) {
+                        [opts[0], opts[1]] = [opts[1], opts[0]];
+                        if (correctIdx === 0) correctIdx = 1;
+                        else if (correctIdx === 1) correctIdx = 0;
+                    }
+                    if ((lv + i) % 5 === 0 && i > 0) {
+                        [opts[1], opts[2]] = [opts[2], opts[1]];
+                        if (correctIdx === 1) correctIdx = 2;
+                        else if (correctIdx === 2) correctIdx = 1;
+                    }
+                    levelQuestions.push({
+                        question: qText,
+                        options: opts,
+                        correct: correctIdx,
+                        svg: themeSvgs[base.theme]
+                    });
+                }
+                levels.push(levelQuestions);
+            }
+            return levels;
+        }
+
+        const allLevels = generateAllQuestions();
+
+        // ============================================================
+        // СОСТОЯНИЕ И ЛОГИКА
+        // ============================================================
+        const state = {
+            currentLevel: 0,
+            currentIndex: 0,
+            answers: [],
+            selectedOption: null,
+            isAnswered: false,
+            autoTimer: null
+        };
+
+        function initAnswers() {
+            state.answers = allLevels.map(() => new Array(20).fill(null));
+        }
+        initAnswers();
+
+        // DOM
+        const levelNav = document.getElementById('levelNav');
+        const levelInfo = document.getElementById('levelInfo');
+        const progressInfo = document.getElementById('progressInfo');
+        const ticketStrip = document.getElementById('ticketStrip');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const currentTicketDisplay = document.getElementById('currentTicketDisplay');
+        const resultIcon = document.getElementById('resultIcon');
+        const resetBtn = document.getElementById('resetBtn');
+        const imageContainer = document.getElementById('imageContainer');
+
+        function getLevelQuestions() { return allLevels[state.currentLevel] || []; }
+        function getLevelAnswers() { return state.answers[state.currentLevel] || new Array(20).fill(null); }
+
+        function renderLevelNav() {
+            let html = '';
+            for (let i = 0; i < 20; i++) {
+                const answers = state.answers[i] || new Array(20).fill(null);
+                const correctCount = answers.filter(a => a === 'correct').length;
+                const wrongCount = answers.filter(a => a === 'wrong').length;
+                const answered = correctCount + wrongCount;
+                let cls = 'level-btn';
+                if (i === state.currentLevel) cls += ' active';
+                else if (answered === 20 && wrongCount === 0) cls += ' completed';
+                else if (answered > 0) cls += ' partial';
+                html += `<button class="${cls}" data-level="${i}">${i+1}</button>`;
+            }
+            levelNav.innerHTML = html;
+        }
+
+        function renderImage(index) {
+            const questions = getLevelQuestions();
+            const ticket = questions[index];
+            if (ticket && ticket.svg) {
+                imageContainer.innerHTML = ticket.svg;
+            } else {
+                imageContainer.innerHTML = `<div style="color:#6e8aa8;font-size:16px;padding:12px;">🖼️ Иллюстрация</div>`;
+            }
+        }
+
+        function renderTickets() {
+            const answers = getLevelAnswers();
+            let html = '';
+            for (let i = 0; i < 20; i++) {
+                const num = i + 1;
+                let classes = 'ticket-btn';
+                const answer = answers[i];
+                if (answer === 'correct') classes += ' correct';
+                else if (answer === 'wrong') classes += ' wrong';
+                if (i === state.currentIndex) classes += ' current';
+                if (answer !== null) classes += ' disabled-ticket';
+                html += `<button class="${classes}" data-index="${i}">${num}</button>`;
+            }
+            ticketStrip.innerHTML = html;
+        }
+
+        function updateProgress() {
+            const answers = getLevelAnswers();
+            const correctCount = answers.filter(a => a === 'correct').length;
+            const wrongCount = answers.filter(a => a === 'wrong').length;
+            const answered = correctCount + wrongCount;
+            progressInfo.textContent = `${answered} / 20 (✅${correctCount} ❌${wrongCount})`;
+            levelInfo.textContent = `Уровень ${state.currentLevel + 1} / 20`;
+        }
+
+        function renderQuestion() {
+            const questions = getLevelQuestions();
+            const answers = getLevelAnswers();
+            const ticket = questions[state.currentIndex];
+            if (!ticket) return;
+            questionText.textContent = ticket.question;
+            renderImage(state.currentIndex);
+
+            let html = '';
+            const letters = ['А', 'Б', 'В'];
+            for (let i = 0; i < ticket.options.length; i++) {
+                let optionClass = 'option-item';
+                const answerState = answers[state.currentIndex];
+                if (answerState !== null) {
+                    optionClass += ' disabled-option';
+                    const isCorrect = (i === ticket.correct);
+                    const isSelected = (state.selectedOption === i);
+                    if (isSelected && isCorrect) optionClass += ' selected-correct';
+                    else if (isSelected && !isCorrect) optionClass += ' selected-wrong';
+                    else if (isCorrect && answerState === 'correct') optionClass += ' selected-correct';
+                }
+                html += `<div class="${optionClass}" data-optindex="${i}">
+                    <span class="option-prefix">${letters[i]}.</span> ${ticket.options[i]}
+                </div>`;
+            }
+            optionsContainer.innerHTML = html;
+
+            currentTicketDisplay.textContent = state.currentIndex + 1;
+
+            const ans = answers[state.currentIndex];
+            if (ans === 'correct') resultIcon.textContent = '✅';
+            else if (ans === 'wrong') resultIcon.textContent = '❌';
+            else resultIcon.textContent = '⚪';
+
+            if (answers[state.currentIndex] === null) {
+                document.querySelectorAll('.option-item').forEach(el => {
+                    el.addEventListener('click', onOptionClick);
+                });
+            }
+
+            updateProgress();
+            renderLevelNav();
+        }
+
+        function onOptionClick(e) {
+            const el = e.currentTarget;
+            const answers = getLevelAnswers();
+            if (state.isAnswered || answers[state.currentIndex] !== null) return;
+
+            const optIndex = parseInt(el.dataset.optindex, 10);
+            const questions = getLevelQuestions();
+            const ticket = questions[state.currentIndex];
+            const isCorrect = (optIndex === ticket.correct);
+
+            state.selectedOption = optIndex;
+            state.answers[state.currentLevel][state.currentIndex] = isCorrect ? 'correct' : 'wrong';
+            state.isAnswered = true;
+
+            renderTickets();
+            renderQuestion();
+
+            if (state.autoTimer) clearTimeout(state.autoTimer);
+            state.autoTimer = setTimeout(() => {
+                const answersNow = getLevelAnswers();
+                let nextIndex = state.currentIndex;
+                let attempts = 0;
+                do {
+                    nextIndex = (nextIndex + 1) % 20;
+                    attempts++;
+                } while (answersNow[nextIndex] !== null && attempts < 20);
+
+                if (attempts >= 20) {
+                    state.currentIndex = state.currentIndex;
+                } else {
+                    state.currentIndex = nextIndex;
+                }
+
+                state.selectedOption = null;
+                state.isAnswered = false;
+                if (state.autoTimer) clearTimeout(state.autoTimer);
+                state.autoTimer = null;
+
+                renderTickets();
+                renderQuestion();
+            }, 800);
+        }
+
+        function resetLevel() {
+            if (state.autoTimer) { clearTimeout(state.autoTimer); state.autoTimer = null; }
+            state.answers[state.currentLevel] = new Array(20).fill(null);
+            state.currentIndex = 0;
+            state.selectedOption = null;
+            state.isAnswered = false;
+            renderTickets();
+            renderQuestion();
+        }
+
+        function switchLevel(level) {
+            if (state.autoTimer) { clearTimeout(state.autoTimer); state.autoTimer = null; }
+            state.currentLevel = level;
+            state.currentIndex = 0;
+            state.selectedOption = null;
+            state.isAnswered = false;
+            renderTickets();
+            renderQuestion();
+        }
+
+        function handleTicketClick(e) {
+            const btn = e.target.closest('.ticket-btn');
+            if (!btn) return;
+            const index = parseInt(btn.dataset.index, 10);
+            if (state.autoTimer) clearTimeout(state.autoTimer);
+            state.autoTimer = null;
+            state.currentIndex = index;
+            state.selectedOption = null;
+            state.isAnswered = false;
+            renderTickets();
+            renderQuestion();
+        }
+
+        function handleLevelClick(e) {
+            const btn = e.target.closest('.level-btn');
+            if (!btn) return;
+            const level = parseInt(btn.dataset.level, 10);
+            if (level === state.currentLevel) return;
+            switchLevel(level);
+        }
+
+        function init() {
+            renderLevelNav();
+            renderTickets();
+            renderQuestion();
+            ticketStrip.addEventListener('click', handleTicketClick);
+            levelNav.addEventListener('click', handleLevelClick);
+            resetBtn.addEventListener('click', resetLevel);
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
